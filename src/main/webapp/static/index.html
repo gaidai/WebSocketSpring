@@ -2,10 +2,12 @@
 <head>
     <meta charset="UTF-8">
     <title>WebSocket Tester</title>
+    
+    <script language="javascript" type="text/javascript" src="https://d1fxtkz8shb9d2.cloudfront.net/sockjs-0.3.4.min.js"></script>
     <script language="javascript" type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script language="javascript" type="text/javascript">
         var ping;
-        var websocket;
+        var sockjs;
 
         jQuery(function ($) {
             function writePing(message) {
@@ -22,23 +24,23 @@
 
             $('#connect')
                     .click(function doConnect() {
-                        websocket = new WebSocket($("#target").val());
+                        sockjs = new SockJS($("#target").val());
 
-                        websocket.onopen = function (evt) {
+                        sockjs.onopen = function (evt) {
                             writeStatus("CONNECTED");
 
                             var ping = setInterval(function () {
-                                if (websocket != "undefined") {
-                                    websocket.send("ping");
+                                if (sockjs != "undefined") {
+                                    sockjs.send("ping");
                                 }
                             }, 3000);
                         };
 
-                        websocket.onclose = function (evt) {
+                        sockjs.onclose = function (evt) {
                             writeStatus("DISCONNECTED");
                         };
 
-                        websocket.onmessage = function (evt) {
+                        sockjs.onmessage = function (evt) {
                             if (evt.data === "ping") {
                                 writePing(evt.data);
                             } else {
@@ -46,16 +48,16 @@
                             }
                         };
 
-                        websocket.onerror = function (evt) {
+                        sockjs.onerror = function (evt) {
                             onError(writeStatus('ERROR:' + evt.data))
                         };
                     });
 
             $('#disconnect')
                     .click(function () {
-                        if(typeof websocket != 'undefined') {
-                            websocket.close();
-                            websocket = undefined;
+                        if(typeof sockjs != 'undefined') {
+                            sockjs.close();
+                            sockjs = undefined;
                         } else {
                             alert("Not connected.");
                         }
@@ -63,20 +65,22 @@
 
             $('#send')
                     .click(function () {
-                        if(typeof websocket != 'undefined') {
-                            websocket.send($('#message').val());
+                        if(typeof sockjs != 'undefined') {
+                            sockjs.send($('#message').val());
                         } else {
                             alert("Not connected.");
                         }
                     });
         });
     </script>
+  
+
 </head>
 
 <body>
     <h2>WebSocket Tester</h2>
     Target:
-    <input type="text" id="target" size="40" value="ws://localhost:8080/WebSocketSpring/echoHandler"/>
+    <input type="text" id="target" size="40" value="http://localhost:8080/WebSocketSpring/echoHandler"/>
     <br/>
     <button id="connect">Connect</button>
     <button id="disconnect">Disconnect</button>
